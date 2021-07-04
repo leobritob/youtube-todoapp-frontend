@@ -1,27 +1,25 @@
-import { useState, Fragment } from 'react';
+import { useState, Fragment, useEffect } from 'react';
 import { Input, Text, Button, Row, Column, List, Logo, Icon } from 'components';
 import { useMemo } from 'react';
 import { useCallback } from 'react';
+import { useTodo } from 'hooks';
 
 const SECONDS_DEFAULT = 5;
 
 export const Home = () => {
+  const { tasks, getAllTodos, createTodo, updateTodo } = useTodo();
+
   const [taskName, setTaskName] = useState('');
-  const [tasks, setTasks] = useState<{ label: string }[]>([]);
   const [seconds, setSeconds] = useState(SECONDS_DEFAULT);
   const [timer, setTimer] = useState<any>();
   const [stage, setStage] = useState('ready');
+  const [taskIndex, setTaskIndex] = useState(0);
 
-  const handleOKButton = () => {
-    if (!taskName) return;
-
-    setTasks((previous) => {
-      const copy = [...previous];
-      copy.push({ label: taskName });
-      return copy;
-    });
+  const handleOKButton = useCallback(async () => {
+    await createTodo({ task: taskName, isDone: 0 });
+    await getAllTodos();
     setTaskName('');
-  };
+  }, [createTodo, getAllTodos, taskName]);
 
   const secondsToTime = (secs: number) => {
     const divisorMinutes = secs % 3600;
@@ -71,6 +69,14 @@ export const Home = () => {
     setSeconds(SECONDS_DEFAULT);
     setStage('ready');
   }, [handlePauseButton]);
+
+  const handleDoneButton = useCallback(async () => {
+    const task = tasks[taskIndex];
+    if (task) {
+      await updateTodo(task.id, { ...task, isDone: 1 });
+      await getAllTodos();
+    }
+  }, [updateTodo, getAllTodos, taskIndex, tasks]);
 
   const handleStageStatus = useMemo(() => {
     switch (stage) {
@@ -124,7 +130,7 @@ export const Home = () => {
             <Button variant="primary" p="10px 20px" mx="5px" onClick={handleRestartButton}>
               <Icon variant="restart" />
             </Button>
-            <Button variant="primary" p="10px 20px" mx="5px">
+            <Button variant="primary" p="10px 20px" mx="5px" onClick={handleDoneButton}>
               <Icon variant="done" />
             </Button>
           </Row>
@@ -141,7 +147,11 @@ export const Home = () => {
           </Fragment>
         );
     }
-  }, [handlePauseButton, handleStopButton, handleRestartButton, stage]);
+  }, [handlePauseButton, handleStopButton, handleRestartButton, handleDoneButton, stage]);
+
+  useEffect(() => {
+    getAllTodos();
+  }, [getAllTodos]);
 
   return (
     <Column width="600px" margin="0 auto">
@@ -181,7 +191,7 @@ export const Home = () => {
         <Button onClick={handleOKButton}>OK</Button>
       </Row>
 
-      <List items={tasks} />
+      <List items={tasks} selectedIndex={taskIndex} onClick={setTaskIndex} />
     </Column>
   );
 };
