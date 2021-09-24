@@ -73,8 +73,9 @@ export const Home = () => {
   const handleDoneButton = useCallback(async () => {
     const task = tasks[taskIndex];
     if (task) {
-      await updateTodo(task.id, { ...task, isDone: 1 });
+      await updateTodo(task.id, { task: task.task, isDone: 1 });
       await getAllTodos();
+      setStage('ready');
     }
   }, [updateTodo, getAllTodos, taskIndex, tasks]);
 
