@@ -1,7 +1,6 @@
-import { useState, Fragment, useEffect } from 'react';
+import { useState, Fragment, useEffect, useMemo, useCallback } from 'react';
+
 import { Input, Text, Button, Row, Column, List, Logo, Icon } from 'components';
-import { useMemo } from 'react';
-import { useCallback } from 'react';
 import { useTodo } from 'hooks';
 
 const SECONDS_DEFAULT = 5;
