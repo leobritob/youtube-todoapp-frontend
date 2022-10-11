@@ -1,4 +1,4 @@
-# TODO App
+# TODO App - Frontend
 This is a simple TODO App that I created and posted a video on my YouTube channel.
 
 ## Preview
